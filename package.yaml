@@ -1,0 +1,6 @@
+name: brackets
+dependencies:
+  - attoparsec
+executables:
+    brackets:
+        main: Main.hs
