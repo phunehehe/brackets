@@ -1,6 +1,9 @@
 name: brackets
+ghc-options: -Wall
 dependencies:
   - attoparsec
+  - base
+  - text
 executables:
     brackets:
         main: Main.hs

@@ -1,54 +1,75 @@
-import qualified Data.Attoparsec.Text.Lazy as A
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Data.List                 (intercalate)
+import qualified Data.Attoparsec.Text as A
+import qualified Data.Text            as T
+
+import           Data.Attoparsec.Text (Parser)
+import           Data.Text            (Text)
 
 
-data Tree a = Leaf a | Branch a a [Tree a]
+data Node a = Leaf a | Branch a a [Node a]
     deriving Show
 
 
-tab :: String
+tab :: Text
 tab = "\t"
 
-startSymbols :: [String]
-startSymbols =
-    "(" :
-    "[" :
-    "{" :
+pairs :: [(Text, Text)]
+pairs =
+    ("(", ")") :
+    ("[", "]") :
+    ("{", "}") :
     []
 
-endSymbols :: [String]
-endSymbols =
-    ")" :
-    "]" :
-    "}" :
-    []
+stringReplicate :: Int -> Text -> Text
+stringReplicate n s = T.concat $ replicate n s
 
-stringReplicate :: Int -> String -> String
-stringReplicate n s = concat $ replicate n s
-
-printSubTree :: Int -> Tree String -> String
-printSubTree level (Leaf x) = stringReplicate level tab ++ x
-printSubTree level (Branch startSymbol endSymbol subTrees) = intercalate "\n"
-    [ stringReplicate level tab ++ startSymbol
-    , intercalate "\n" (map (printSubTree (level + 1)) subTrees)
-    , stringReplicate level tab ++ endSymbol
+printSubTree :: Int -> Node Text -> Text
+printSubTree level (Leaf x) = stringReplicate level $ T.append tab x
+printSubTree level (Branch startSymbol endSymbol subTrees) = T.intercalate "\n"
+    [ stringReplicate level $ T.append tab startSymbol
+    , T.intercalate "\n" (map (printSubTree (level + 1)) subTrees)
+    , stringReplicate level $ T.append tab endSymbol
     ]
 
-printTree :: Tree String -> String
+printTree :: Node Text -> Text
 printTree (Leaf x) = x
-printTree (Branch startSymbol endSymbol subTrees) = intercalate "\n"
+printTree (Branch startSymbol endSymbol subTrees) = T.intercalate "\n"
     [ startSymbol
-    , intercalate "\n" (map (printSubTree 1) subTrees)
+    , T.intercalate "\n" (map (printSubTree 1) subTrees)
     , endSymbol
     ]
 
 
-parseTree :: A.Parser (Tree String)
-parseTree = undefined
+getEndSymbol :: Text -> Maybe Text
+getEndSymbol start = case filter (\(x, _) -> x == start) pairs of
+    [(_, end)] -> Just end
+    _ -> Nothing
+
+parseLeaf :: [Text] -> Parser (Node Text)
+parseLeaf delimiters = do
+    contents <- A.takeTill isDelimiter
+    return $ Leaf contents
+    where
+        isDelimiter c = T.pack [c] `elem` delimiters ++ map fst pairs
+
+parseBranch :: Text -> Text -> Parser (Node Text)
+parseBranch start end = do
+    nodes <- A.manyTill (parseSomething [end]) (A.string end)
+    return $ Branch start end nodes
+
+parseSomething :: [Text] -> Parser (Node Text)
+parseSomething delimiters = do
+    -- FIXME: this means no multi-char start or end symbols
+    c <- A.peekChar'
+    case getEndSymbol $ T.pack [c] of
+        Just e -> A.anyChar >> parseBranch (T.pack [c]) e
+        _ -> parseLeaf delimiters
 
 
 main :: IO ()
 main = do
     input <- getContents
-    putStrLn $ printTree $ Branch "[" "]" [Leaf "blah", Branch "(" ")" [Leaf "asdf"], Leaf "bleh"]
+    case A.parseOnly (parseSomething []) (T.pack input) of
+        Left _ -> undefined
+        Right node -> putStrLn $ T.unpack $ printTree node

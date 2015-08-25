@@ -4,14 +4,14 @@ let
 
   inherit (nixpkgs) pkgs;
 
-  f = { mkDerivation, attoparsec, stdenv }:
+  f = { mkDerivation, attoparsec, base, stdenv, text }:
       mkDerivation {
         pname = "brackets";
         version = "0.0.0";
         src = ./.;
         isLibrary = false;
         isExecutable = true;
-        buildDepends = [ attoparsec ];
+        buildDepends = [ attoparsec base text ];
         license = stdenv.lib.licenses.unfree;
       };
 
