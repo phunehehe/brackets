@@ -3,6 +3,7 @@
 import qualified Data.Attoparsec.Text as A
 import qualified Data.Text            as T
 
+import           Control.Applicative  (many)
 import           Data.Attoparsec.Text (Parser)
 import           Data.Text            (Text)
 
@@ -37,7 +38,7 @@ printNode :: Node Text -> Text
 printNode (Leaf x) = x
 printNode (Branch startSymbol endSymbol subNodes) = T.intercalate "\n"
     [ startSymbol
-    , T.intercalate "\n" (map (printSubNode 1) subNodes)
+    , T.intercalate "\n" (map (printSubNode 0) subNodes)
     , endSymbol
     ]
 
@@ -56,21 +57,25 @@ parseLeaf delimiters = do
 
 parseBranch :: Text -> Text -> Parser (Node Text)
 parseBranch start end = do
-    nodes <- A.manyTill (parseSomething [end]) (A.string end)
+    nodes <- A.manyTill (parseNode [end]) (A.string end)
     return $ Branch start end nodes
 
-parseSomething :: [Text] -> Parser (Node Text)
-parseSomething delimiters = do
+parseNode :: [Text] -> Parser (Node Text)
+parseNode delimiters = do
     -- FIXME: this means no multi-char start or end symbols
     c <- A.peekChar'
     case getEndSymbol $ T.pack [c] of
         Just e -> A.anyChar >> parseBranch (T.pack [c]) e
         _ -> parseLeaf delimiters
 
+parseNodes :: Parser [Node Text]
+parseNodes = many (parseNode [])
+
 
 main :: IO ()
 main = do
     input <- getContents
-    case A.parseOnly (parseSomething []) (T.pack input) of
+    case A.parseOnly parseNodes (T.pack input) of
+        -- TODO: what is reasonable to do if parsing fails?
         Left _ -> undefined
-        Right node -> putStrLn $ T.unpack $ printNode node
+        Right nodes -> putStrLn $ T.unpack $ printNode $ Branch "" "" nodes
