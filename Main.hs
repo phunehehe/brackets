@@ -21,22 +21,23 @@ pairs =
     ("{", "}") :
     []
 
+
 stringReplicate :: Int -> Text -> Text
 stringReplicate n s = T.concat $ replicate n s
 
-printSubTree :: Int -> Node Text -> Text
-printSubTree level (Leaf x) = stringReplicate level $ T.append tab x
-printSubTree level (Branch startSymbol endSymbol subTrees) = T.intercalate "\n"
-    [ stringReplicate level $ T.append tab startSymbol
-    , T.intercalate "\n" (map (printSubTree (level + 1)) subTrees)
-    , stringReplicate level $ T.append tab endSymbol
+printSubNode :: Int -> Node Text -> Text
+printSubNode level (Leaf x) = T.append (stringReplicate level tab) x
+printSubNode level (Branch startSymbol endSymbol subNodes) = T.intercalate "\n"
+    [ T.append (stringReplicate level tab) startSymbol
+    , T.intercalate "\n" (map (printSubNode (level + 1)) subNodes)
+    , T.append (stringReplicate level tab) endSymbol
     ]
 
-printTree :: Node Text -> Text
-printTree (Leaf x) = x
-printTree (Branch startSymbol endSymbol subTrees) = T.intercalate "\n"
+printNode :: Node Text -> Text
+printNode (Leaf x) = x
+printNode (Branch startSymbol endSymbol subNodes) = T.intercalate "\n"
     [ startSymbol
-    , T.intercalate "\n" (map (printSubTree 1) subTrees)
+    , T.intercalate "\n" (map (printSubNode 1) subNodes)
     , endSymbol
     ]
 
@@ -72,4 +73,4 @@ main = do
     input <- getContents
     case A.parseOnly (parseSomething []) (T.pack input) of
         Left _ -> undefined
-        Right node -> putStrLn $ T.unpack $ printTree node
+        Right node -> putStrLn $ T.unpack $ printNode node
