@@ -12,8 +12,9 @@ data Node a = Leaf a | Branch a a [Node a]
     deriving Show
 
 
+-- LOL tabs!
 tab :: Text
-tab = "\t"
+tab = "  "
 
 pairs :: [(Text, Text)]
 pairs =
