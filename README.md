@@ -1,8 +1,8 @@
 # brackets
 
-"Structured text" as in, like JSON. Of course for JSON you can use the legendary
-[`jq`](https://stedolan.github.io/jq/), but what about things that are not
-really JSON? Use `brackets` :)
+`brackets` is a generic pretty printer for structured text, like JSON. Of course
+for JSON you can use the legendary [`jq`](https://stedolan.github.io/jq/), but
+what about things that are not really JSON? Use `brackets` :)
 
 ```
 $ cat /nix/store/zzxgnl7n65dni529bcz5jnyfvb6l36iy-coreutils-8.23.drv
