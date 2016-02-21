@@ -1,10 +1,10 @@
-{ mkDerivation, attoparsec, base, stdenv }:
+{ mkDerivation, attoparsec, base, stdenv, text }:
 mkDerivation {
   pname = "brackets";
   version = "0.0.0";
   src = ./.;
   isLibrary = false;
   isExecutable = true;
-  buildDepends = [ attoparsec base ];
+  executableHaskellDepends = [ attoparsec base text ];
   license = stdenv.lib.licenses.unfree;
 }

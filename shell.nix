@@ -1,4 +1,4 @@
-{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc7101" }:
+{ nixpkgs ? import <nixpkgs> {}, compiler ? "default" }:
 
 let
 
@@ -11,11 +11,15 @@ let
         src = ./.;
         isLibrary = false;
         isExecutable = true;
-        buildDepends = [ attoparsec base text ];
+        executableHaskellDepends = [ attoparsec base text ];
         license = stdenv.lib.licenses.unfree;
       };
 
-  drv = pkgs.haskell.packages.${compiler}.callPackage f {};
+  haskellPackages = if compiler == "default"
+                       then pkgs.haskellPackages
+                       else pkgs.haskell.packages.${compiler};
+
+  drv = haskellPackages.callPackage f {};
 
 in
 
