@@ -6,5 +6,5 @@ mkDerivation {
   isLibrary = false;
   isExecutable = true;
   executableHaskellDepends = [ attoparsec base text ];
-  license = stdenv.lib.licenses.unfree;
+  license = stdenv.lib.licenses.mpl20;
 }

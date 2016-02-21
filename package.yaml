@@ -1,5 +1,6 @@
 name: brackets
 ghc-options: -Wall
+license: MPL-2.0
 dependencies:
   - attoparsec
   - base
