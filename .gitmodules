@@ -1,0 +1,3 @@
+[submodule "nix2cabal"]
+	path = nix2cabal
+	url = https://gitlab.com/phunehehe/nix2cabal.git
