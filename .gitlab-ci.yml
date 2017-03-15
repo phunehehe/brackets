@@ -1,3 +1,10 @@
 image: phunehehe/nix
 build:
-    script: nix-build --no-out-link shell.nix
+    script:
+      - nix-build --no-out-link .
+      - nix-shell --run true
+    artifacts:
+        paths:
+          - ./brackets.cabal
+variables:
+    GIT_SUBMODULE_STRATEGY: recursive
