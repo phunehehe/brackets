@@ -2,6 +2,7 @@ image: phunehehe/nix
 build:
     script:
       - nix-build --no-out-link .
+        # Capture the cabal file by nix2cabal
       - nix-shell --run true
     artifacts:
         paths:
